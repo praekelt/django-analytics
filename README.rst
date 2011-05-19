@@ -109,6 +109,7 @@ This will automatically add the following Geckoboard-related URLs to your projec
     A `line chart widget <http://support.geckoboard.com/entries/274940-custom-chart-widget-type-definitions>`_.
     Note that this can only plot a single metric per chart.
     Supported GET variable parameters: ``uid``, ``daysback``, ``cumulative``, ``frequency``.
+    ``daysback`` default: 7.
 ``analytics/geckoboard/geckometer``
     A `geck-o-meter widget <http://support.geckoboard.com/entries/274940-custom-chart-widget-type-definitions>`_.
     Supported GET variable parameters: ``uid``, ``frequency``, ``cumulative``, ``min``, ``max``.
