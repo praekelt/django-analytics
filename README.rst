@@ -31,6 +31,8 @@ Quick Installation
 
     > python manage.py metrics --calculate=ALL
 
+By default, ``panya-analytics`` comes with a ``registrations`` metric which counts
+the number of users in the system based on their ``date_joined`` timestamp.
 
 Creating a mod_analytics Script
 -------------------------------
