@@ -252,7 +252,8 @@ Todo
 ----
 The following features are planned for future versions of ``panya-analytics``:
 
-1. Hourly statistics.
-2. More complex statistics, such as frequency plots/histograms.
+1. Custom visualisation integrated into Django admin back-end.
+2. Hourly statistics.
+3. More complex statistics, such as frequency plots/histograms.
 
 
