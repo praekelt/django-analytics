@@ -88,6 +88,9 @@ in your project's ``urls.py``, add the following line:
         # ...
     )
 
+Note that this project makes use of ``django-geckoboard`` (http://pypi.python.org/pypi/django-geckoboard),
+so all of the default ``django-geckoboard`` settings apply.
+
 **Geckboard Charts**
 
 This will automatically add the following Geckoboard-related URLs to your project:
