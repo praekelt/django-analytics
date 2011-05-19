@@ -24,7 +24,7 @@ class Registrations(BaseMetric):
             date_joined__lt=end_datetime).count()
 
 
-    def get_earliest_data_datetime(self):
+    def get_earliest_timestamp(self):
         try:
             return User.objects.order_by('date_joined')[0].date_joined
         except IndexError:
