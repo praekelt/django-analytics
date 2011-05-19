@@ -67,7 +67,7 @@ looking like the following:
 
         def get_earliest_data_datetime(self):
             try:
-                return Comment.objects.order_by('timestamp')[0].timestamp
+                return Comment.objects.all().order_by('timestamp')[0].timestamp
             except IndexError:
                 return None
 
