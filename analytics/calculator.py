@@ -35,7 +35,7 @@ def calculate_metric(metric, frequency):
     metric_calc = metric_class()
 
     if latest_stat is None:
-        start_datetime = metric_calc.get_earliest_data_datetime()
+        start_datetime = metric_calc.get_earliest_timestamp()
         if not start_datetime:
             print _("No data for metric %(metric)s, skipping.") % {'metric': metric.title}
             return False

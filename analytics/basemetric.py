@@ -33,7 +33,7 @@ class BaseMetric(object):
         pass
 
 
-    def get_earliest_data_datetime(self):
+    def get_earliest_timestamp(self):
         """
         Must return a date/time object indicating when the earliest
         data available for this metric occurred.

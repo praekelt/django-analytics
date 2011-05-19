@@ -65,7 +65,7 @@ looking like the following:
             return Comment.objects.filter(timestamp__gte=start_datetime,
                 timestamp__lt=end_datetime).count()
 
-        def get_earliest_data_datetime(self):
+        def get_earliest_timestamp(self):
             try:
                 return Comment.objects.all().order_by('timestamp')[0].timestamp
             except IndexError:
@@ -227,7 +227,7 @@ When running the ``manage.py metrics --install`` command, the following happens:
    it encounters, and then attempts to find classes derived from the
    ``analytics.basemetric.BaseMetric`` class (an abstract class).
 3. For each valid class found which derives from the ``BaseMetric`` class, the script
-   makes sure it has two functions: ``calculate``, and ``get_earliest_data_datetime``.
+   makes sure it has two functions: ``calculate``, and ``get_earliest_timestamp``.
    It also makes sure the class has two properties: ``uid`` and ``title``.
 4. If the class has these two functions, the script creates a ``Metric`` instance
    whose unique identifier and title are set to the ``uid`` and ``title`` values
@@ -247,7 +247,7 @@ metric for the time period starting at 2011/05/01 00:00 and ending at 2011/05/02
 value (i.e. greater-than-equal-to), but *just before* the ``end_datetime`` value (i.e.
 less-than).
 
-The ``get_earliest_data_datetime`` function must simply return a ``datetime.datetime`` object
+The ``get_earliest_timestamp`` function must simply return a ``datetime.datetime`` object
 indicating the earliest data's associated date/time, so that the analytics calculation routine
 knows the date at which to start calculating. If there are no entries yet, this function must
 return ``None``.
