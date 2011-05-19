@@ -8,7 +8,7 @@ This app could be useful for keeping track of registrations, page impressions, s
 and so on. By default, it allows for tracking of registrations. Adding more metrics
 is a relatively straightforward task, as explained further on.
 
-.. contents:: Contents
+.. contents::
     :depth: 5    
 
 Quick Installation
@@ -21,12 +21,14 @@ Quick Installation
    and automatically make them active:
 
 ::
+
     > python manage.py metrics --install
 
 5. Run the following from the command line to update the daily, weekly and monthly
    statistics for each of the active metrics:
 
 ::
+
     > python manage.py metrics --calculate=ALL
 
 Metrics Explained
@@ -78,6 +80,7 @@ Creating a mod_analytics Script
 If, for example, you have an app called ``comments`` with the following ``models.py`` file:
 
 ::
+
     from django.db import models
     from django.contrib.auth.models import User
 
@@ -91,6 +94,7 @@ create a ``mod_analytics.py`` script (in the same directory as your app's models
 looking like the following:
 
 ::
+
     from analytics.basemetric import BaseMetric
     from models import Comment
 
