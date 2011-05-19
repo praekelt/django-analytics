@@ -102,9 +102,9 @@ def geckoboard_number_widget(request):
             date_time__lte=latest_stat.date_time-timedelta(days=params['days_back'])).order_by('-date_time')[0]
     except IndexError:
         # if there is no previous stat
-        return (latest_stat.cumulative_count, 0)
+        return (latest_stat.cumulative_count, 0) if params['cumulative'] else (latest_stat.count, 0)
 
-    return (latest_stat.cumulative_count, prev_stat.cumulative_count)
+    return (latest_stat.cumulative_count, prev_stat.cumulative_count) if params['cumulative'] else (latest_stat.count, prev_stat.count)
 
 
 
@@ -117,6 +117,7 @@ def geckoboard_rag_widget(request):
     """
 
     params = get_gecko_params(request)
+    print params['uids']
     max_date = datetime.now()-timedelta(days=params['days_back'])
 
     metrics = Metric.objects.filter(uid__in=params['uids'])
@@ -139,7 +140,7 @@ def geckoboard_pie_chart(request):
 
     metrics = Metric.objects.filter(uid__in=params['uids'])
     results = [(metric.latest_count(frequency=params['frequency'], count=not params['cumulative'],
-        cumulative=params['cumulative'], max_date=max_date), metric.title, get_next_colour())]
+        cumulative=params['cumulative']), metric.title, get_next_colour()) for metric in metrics]
     
     return tuple(results)
 
@@ -151,7 +152,7 @@ def geckoboard_line_chart(request):
     Returns the data for a line chart for the specified metric.
     """
 
-    params = get_gecko_params(request, cumulative=False)
+    params = get_gecko_params(request, cumulative=False, days_back=7)
     metric = Metric.objects.get(uid=params['uid'])
 
     start_date = datetime.now()-timedelta(days=params['days_back'])
@@ -159,7 +160,7 @@ def geckoboard_line_chart(request):
         date_time__gte=start_date).order_by('date_time')]
 
     if len(stats) == 0:
-        raise Exception, _("No statistics for metric %(metric)s.") % {'metric': uid}
+        raise Exception, _("No statistics for metric %(metric)s.") % {'metric': params['uid']}
 
     dates = [stats[0].date_time]
 

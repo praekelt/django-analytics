@@ -28,7 +28,7 @@ def csv_dump(request, uid):
     writer = csv.writer(response)
     writer.writerow([_('Date/time'), _('Count'), _('Cumulative count')])
     for stat in metric.statistics.filter(frequency=frequency).order_by('date_time'):
-        writer.writerow([stat.strftime(settings.CSV_DATETIME_FORMAT), stat.count, stat.cumulative_count])
+        writer.writerow([stat.date_time.strftime(settings.CSV_DATETIME_FORMAT), stat.count, stat.cumulative_count])
 
     return response
 
