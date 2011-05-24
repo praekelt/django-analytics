@@ -6,14 +6,14 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='panya-analytics',
+    name='django-analytics',
     version='0.0.1',
-    description='Panya app facilitating tracking of arbitrary simple metrics.',
+    description='Django app facilitating tracking of arbitrary simple metrics.',
     long_description=open('README.rst', 'rt').read(),
     author='Praekelt Foundation',
     author_email='dev@praekelt.com',
     license='BSD',
-    url='https://github.com/praekelt/panya-analytics',
+    url='https://github.com/praekelt/django-analytics',
     packages=find_packages(),
     install_requires=[
         'django_geckoboard>=1.1.0',
