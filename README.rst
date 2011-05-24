@@ -1,5 +1,5 @@
-panya-analytics
-===============
+django-analytics
+================
 
 A basic Django app facilitating tracking of certain elementary metrics and statistics -
 generally just metrics which can be measured in terms of counts and cumulative counts.
@@ -13,7 +13,7 @@ is a relatively straightforward task, as explained further on.
 
 Quick Installation
 ------------------
-1. Save a copy of the ``panya-analytics`` app in your Python path.
+1. Save a copy of the ``django-analytics`` app in your Python path.
 2. Add it to your ``INSTALLED_APPS`` list in your Django project settings.
 3. Create a ``mod_analytics.py`` file for each of your apps that require some sort
    of tracking. See the `Creating a mod_analytics Script`_ section below.
@@ -31,7 +31,7 @@ Quick Installation
 
     > python manage.py metrics --calculate=ALL
 
-By default, ``panya-analytics`` comes with a ``registrations`` metric which counts
+By default, ``django-analytics`` comes with a ``registrations`` metric which counts
 the number of users in the system based on their ``date_joined`` timestamp.
 
 Creating a mod_analytics Script
@@ -175,7 +175,7 @@ It will also add the following CSV-related URLs to your project:
 
 Metrics Explained
 -----------------
-The ``panya-analytics`` module creates ``Metric`` objects for each type of metric that
+The ``django-analytics`` module creates ``Metric`` objects for each type of metric that
 needs to be tracked, such as registrations, page impressions, etc. Each metric needs to
 have a globally unique identifier (**UID**) so that it can be referenced from the command line
 by name, and a title to provide a little more of a description of what that metric
@@ -254,7 +254,7 @@ return ``None``.
 
 Todo
 ----
-The following features are planned for future versions of ``panya-analytics``:
+The following features are planned for future versions of ``django-analytics``:
 
 1. Custom visualisation integrated into Django admin back-end.
 2. Hourly statistics.

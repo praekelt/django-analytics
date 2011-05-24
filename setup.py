@@ -1,5 +1,5 @@
 #
-# Panya Analytics
+# django-analytics
 #
 
 from setuptools import setup, find_packages
