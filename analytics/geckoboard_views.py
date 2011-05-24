@@ -1,5 +1,5 @@
 #
-# Geckoboard-related views for Panya Analytics.
+# Geckoboard-related views for django-analytics.
 #
 # thane@praekelt.com
 #

@@ -1,5 +1,5 @@
 #
-# Panya Analytics maintenance-related functions.
+# django-analytics maintenance-related functions.
 #
 # thane@praekelt.com
 #

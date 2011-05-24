@@ -1,5 +1,5 @@
 #
-# Calculator module for Panya Analytics - handles the invoking of
+# Calculator module for django-analytics - handles the invoking of
 # all metrics' calculations.
 #
 # thane@praekelt.com

@@ -1,5 +1,5 @@
 #
-# CSV view for Panya Analytics.
+# CSV view for django-analytics.
 #
 # thane@praekelt.com
 #

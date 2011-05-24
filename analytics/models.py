@@ -1,7 +1,5 @@
 #
-# Panya Analytics
-#
-# Models related to analytics for Panya.
+# django-analytics
 #
 # thane@praekelt.com
 #

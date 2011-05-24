@@ -1,5 +1,5 @@
 #
-# URLs for Panya Analytics.
+# URLs for django-analytics.
 #
 # thane@praekelt.com
 #

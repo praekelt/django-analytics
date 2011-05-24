@@ -1,9 +1,3 @@
-#
-# Admin for Panya Analytics.
-#
-# thane@praekelt.com
-#
-
 from django.contrib import admin
 from analytics import models
 

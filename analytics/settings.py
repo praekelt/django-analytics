@@ -1,5 +1,5 @@
 #
-# Settings for Panya Analytics.
+# Settings for django-analytics.
 #
 # thane@praekelt.com
 #

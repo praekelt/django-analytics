@@ -1,5 +1,5 @@
 #
-# Sample mod_analytics file for Panya Analytics.
+# Sample mod_analytics file for django-analytics.
 # Provides metric computation for some standard metrics.
 #
 # thane@praekelt.com

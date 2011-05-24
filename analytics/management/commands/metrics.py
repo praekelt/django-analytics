@@ -1,5 +1,5 @@
 #
-# Central management command for Panya Analytics.
+# Central management command for django-analytics.
 #
 # thane@praekelt.com
 #
@@ -73,7 +73,7 @@ class Command(BaseCommand):
         ),
     )
     
-    help = "Panya Analytics metric-related functionality"
+    help = "Metric-related functionality (django-analytics)"
 
     def handle(self, *args, **kwargs):
         """
