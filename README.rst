@@ -252,6 +252,43 @@ indicating the earliest data's associated date/time, so that the analytics calcu
 knows the date at which to start calculating. If there are no entries yet, this function must
 return ``None``.
 
+Abstract Metrics
+----------------
+
+If you want to create abstract metrics, simply create a separate Python file somewhere
+which will contain your "abstract" metrics. For example, create an ``abstract_metrics.py``
+file which looks as follows:
+
+::
+
+    from analytics import BaseMetric
+    from django.contrib.auth.models import User
+
+    class UserBaseMetric(BaseMetric):
+        def calculate(self, start_datetime, end_datetime):
+            return User.objects.filter(date_joined__gte=start_datetime,
+                date_joined__lt=end_datetime).count()
+
+        def get_earliest_timestamp(self):
+            try:
+                return User.objects.all().order_by('date_joined')[0].date_joined
+            except IndexError:
+                return None
+            
+Then, in your ``mod_analytics.py`` file, just import your ``abstract_metrics`` module.
+**Note**: Do not import the ``UserBaseMetric``, just import the ``abstract_metrics`` module,
+as follows:
+
+::
+
+    from analytics import BaseMetric
+    import myapp.abstract_metrics
+
+    class UserMetric(abstract_metrics.UserBaseMetric):
+        uid   = "users"
+        title = "Users"
+
+
 Todo
 ----
 The following features are planned for future versions of ``django-analytics``:
@@ -260,4 +297,12 @@ The following features are planned for future versions of ``django-analytics``:
 2. Hourly statistics.
 3. More complex statistics, such as frequency plots/histograms.
 
+Version History
+---------------
+
++---------+------------------------------------------+
+| Version | Description                              |
++=========+==========================================+
+| 0.0.1   | First version                            |
++---------+------------------------------------------+
 
