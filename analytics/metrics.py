@@ -1,14 +1,16 @@
 from django.contrib.auth.models import User
 
 from analytics.sites import metrics
+from analytics.widgets import NumberWidget
 
 class BaseMetric(object):
     """
     Serves as a template for external apps' metrics. All
     functions specified in this object are compulsory.
+    
+    A 'label' member is required to be provided by inheriting classes, to be used as user friendly metric title during widget rendering.
+    A 'widget' member is required to be provided by inheriting classes, to be used as for rendering the metric.
     """
-    # A descriptive label, to be used as user friendly metric title during widget rendering.
-    label = ''
 
     def calculate(self, start_datetime, end_datetime):
         """
