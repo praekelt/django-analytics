@@ -1,3 +1,6 @@
+# XXX: Is there still a need for this in admin?
+
+"""
 from django.contrib import admin
 from analytics import models
 
@@ -14,5 +17,4 @@ class StatisticAdmin(admin.ModelAdmin):
     list_filter = ['frequency', 'metric', 'date_time']
 
 admin.site.register(models.Statistic, StatisticAdmin)
-
-
+"""
