@@ -1,21 +1,17 @@
 from django.views.generic import TemplateView
-from analytics.sites import metrics
+
+from analytics.sites import gadgets
 
 class AnalyticsView(TemplateView):
     def get_template_names(self):
         return 'analytics/dashboard.html'
     
+class DefaultAnalyticsView(AnalyticsView):
+    
     def get_context_data(self, **kwargs):
         """
         Get the context for this view.
         """
-        widgets = []
-        for metric in metrics._registry:
-            widgets.append(metric.widget)
-
-        context = {'widgets': widgets}
+        context = {'gadgets': gadgets._registry}
         context.update(kwargs)
         return context
-
-class DefaultAnalyticsView(AnalyticsView):
-    pass
