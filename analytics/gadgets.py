@@ -11,6 +11,9 @@ class BaseWidget(object):
         self.samples = samples
         self.width = width
         self.height = height
+    
+    def render(self):
+        return 'foo'
 
 class BarWidget(BaseWidget):
     pass
@@ -19,7 +22,6 @@ class NumberWidget(BaseWidget):
     pass
 
 class Registrations(NumberWidget):
-    def render(self):
-        return 'foo'
+    pass
 
 gadgets.register(Registrations('Registrations', [models.Registrations,], settings.COUNT, 'd', 30, 4, 1))

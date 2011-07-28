@@ -14,5 +14,5 @@ urlpatterns = patterns('',
     (r'^csv/(?P<uid>[a-zA-Z0-9\_]+)', 'analytics.csv_views.csv_dump'),
 
     # Default analytics dashboard.
-    url(r'^default', views.DefaultAnalyticsView.as_view(), name='default_analytics_views'),
+    url(r'^$', views.AnalyticsDashboardView.as_view(), name='analytics_dashboard_view'),
 )
