@@ -1,96 +1,10 @@
+from datetime import datetime, timedelta
+
 from django.db import models
+from django.utils.translation import ugettext as _
 
 from analytics import settings
 
-# XXX: This should be removed or refactored into Statistic model. Remaining for posterity.
-'''
-class Metric(models.Model):
-    """
-    Represents a tracked metric for this project. For example,
-    this could be "unique users", or "page impressions", or
-    "registrations".
-    """
-
-    uid = models.CharField(
-        max_length=100,
-        help_text=_("A unique name for this metric, so that it can be addressed from the code."),
-        unique=True,
-        db_index=True,
-    )
-    title = models.CharField(
-        max_length=100,
-        help_text=_("A short, descriptive title for this metric"),
-    )
-    metric_class = models.CharField(
-        max_length=200,
-        help_text=_("The Python class responsible for the calculation of this metric."),
-    )
-    active = models.BooleanField(
-        default=True,
-        help_text=_("Whether or not to include this metric in regular calculations."),
-    )
-    
-
-    def __unicode__(self):
-        return self.title
-
-
-    def latest_count(self, frequency=settings.STATISTIC_FREQUENCY_DAILY,
-        count=True, cumulative=True, max_date=None):
-        """
-        Returns the most recent counts (cumulative and not) for this metric.
-
-        If max_date is specified, the latest count prior to or on that date will be returned.
-        """
-        
-        try:
-            if max_date is not None:
-                stat = self.statistics.filter(frequency=frequency,
-                    date_time__lte=max_date).order_by('-date_time')[0]
-            else:
-                stat = self.statistics.filter(frequency=frequency).order_by('-date_time')[0]
-            if count and cumulative:
-                return (stat.count, stat.cumulative_count)
-            elif cumulative:
-                return stat.cumulative_count
-            else:
-                return stat.count
-        except IndexError:
-            # if there is no latest statistic
-            if count and cumulative:
-                return (0, 0)
-            else:
-                return 0
-        
-
-
-    def latest_stat(self, frequency=settings.STATISTIC_FREQUENCY_DAILY):
-        """
-        Returns the latest statistic for this metric.
-        """
-
-        try:
-            return self.statistics.filter(frequency=frequency).order_by('-date_time')[0]
-        except IndexError:
-            return None
-
-
-
-    def update_cumulative_counts(self, earliest_datetime=None, frequency=settings.STATISTIC_FREQUENCY_DAILY):
-        """
-        Updates all of this metric's statistics' cumulative counts.
-        """
-
-        try:
-            query = self.statistics.filter(frequency=frequency)
-            # if a "from" date/time was specified, use it
-            if earliest_datetime is not None:
-                query = query.filter(date_time__gte=earliest_datetime)
-            stat = query.order_by('date_time')[0]
-            stat.update_count()
-        except IndexError:
-            pass
-'''
 
 
 class Statistic(models.Model):
@@ -101,6 +15,10 @@ class Statistic(models.Model):
     A 'label' member is required to be provided by inheriting classes, to be used as user friendly metric title during widget rendering.
     A 'widget' member is required to be provided by inheriting classes, to be used as for rendering the metric.
     """
+
+    class Meta:
+        abstract = True
+
     date_time = models.DateTimeField(
         db_index=True,
     )
@@ -109,55 +27,97 @@ class Statistic(models.Model):
         choices=settings.STATISTIC_FREQUENCY_CHOICES,
         db_index=True,
     )
-    count = models.IntegerField(default=0)
-    cumulative_count = models.BigIntegerField(default=0)
+    count = models.IntegerField(
+        default=0,
+    )
+    cumulative_count = models.BigIntegerField(
+        default=0,
+    )
 
-    class Meta:
-        abstract = True
 
     def __unicode__(self):
         return self.__class__.__name__
 
-    def update_count(self, count=None):
+    @classmethod
+    def calculate(cls, frequency=settings.STATISTIC_FREQUENCY_DAILY, verbose=settings.STATISTIC_CALCULATION_VERBOSE):
         """
-        Updates this particular date's count, automatically working out the
-        cumulative total, updating the cumulative totals of all of the subsequent
-        statistic objects.
-
-        Not supplying the count parameter simply updates all subsequent statistics,
-        making sure their cumulative counts are accurate.
+        Runs the calculator for this type of statistic.
         """
 
-        if count is None:
-            # use the current count value
-            count = self.count if self.count else 0
+        if verbose:
+            print _("Calculating statistics for %(class)s...") % {'class': cls.__name__}
+
+        start_datetime = None
+        end_datetime = None
+
+        # get the latest statistic
+        latest_stat = cls.latest(frequency)
+
+        # if there's a cumulative function defined
+        cumulative_calc = getattr(cls, 'get_cumulative', None) is not None
+
+        # work out today's date, truncated to midnight
+        today = datetime.strptime(datetime.now().strftime("%Y %m %d"), "%Y %m %d") 
+
+        # if this statistic only has cumulative stats available
+        if cumulative_calc:
+            if frequency == settings.STATISTIC_FREQUENCY_DAILY:
+                start_datetime = today
+            elif frequency == settings.STATISTIC_FREQUENCY_WEEKLY:
+                # truncate today to the start of this week
+                start_datetime = datetime.strptime(today.strftime("%Y %W 0"), "%Y %w %w")
+            elif frequency == settings.STATISTIC_FREQUENCY_MONTHLY:
+                # truncate today to the start of this month
+                start_datetime = datetime.strptime(today.strftime("%Y %m 1"), "%Y %m %d")
+
+            stat, created = cls.objects.get_or_create(date_time=start_datetime, frequency=frequency)
+            stat.cumulative_count = cls.get_cumulative()
+            stat.count = (stat.cumulative_count-latest_stat.cumulative_count) if latest_stat else stat.cumulative_count
         else:
-            self.count = count
+            # get the date/time at which we should start calculating
+            start_datetime = cls.get_start_datetime() if latest_stat is None else latest_stat.date_time
+            # truncate the start date/time to the appropriate frequency
+            if frequency == settings.STATISTIC_FREQUENCY_DAILY:
+                start_datetime = datetime.strptime(start_datetime.strftime("%Y %m %d"), "%Y %m %d")
+                end_datetime = start_datetime+timedelta(days=1)
+            elif frequency == settings.STATISTIC_FREQUENCY_WEEKLY:
+                # start at the beginning of the week of the latest stat
+                start_datetime = datetime.strptime(start_datetime.strftime("%Y %W 0"), "%Y %W %w")-timedelta(days=7)
+                end_datetime = start_datetime+timedelta(days=7)
+            elif frequency == settings.STATISTIC_FREQUENCY_MONTHLY:
+                # start at the beginning of the month of the latest stat
+                start_datetime = datetime.strptime(start_datetime.strftime("%Y %m 1"), "%Y %m %d")
+                end_datetime = datetime.strptime((start_datetime+timedelta(days=33)).strftime("%Y %m 1"), "%Y %m %d")
 
-        try:
-            last_statistic = Statistic.objects.filter(metric=self.metric,
-                frequency=self.frequency,
-                date_time__lt=self.date_time).order_by('-date_time')[0]
-            self.cumulative_count = last_statistic.cumulative_count+count
-            #print "Set cumulative count to %d" % self.cumulative_count
-        except IndexError:
-            # this will most likely happen if there are no
-            # elements prior to this statistic's date
-            self.cumulative_count = count
+            # if we're doing the normal count
+            while start_datetime < today:
+                count = cls.get_count(start_datetime, end_datetime)
+                cumulative_count = 0
+                if isinstance(count, tuple):
+                    cumulative_count = count[1]
+                    count = count[0]
+                else:
+                    cumulative_count = (latest_stat.cumulative_count+count) if latest_stat else count
 
-        self.save()
+                stat, created = cls.objects.get_or_create(date_time=start_datetime, frequency=frequency)
+                stat.count = count
+                stat.cumulative_count = cumulative_count
 
-        # update all subsequent cumulative counts
-        next_statistics = [s for s in Statistic.objects.filter(metric=self.metric,
-            frequency=self.frequency, date_time__gt=self.date_time).order_by('date_time')]
-        prev_count = self.cumulative_count
-        for s in next_statistics:
-            s.cumulative_count = prev_count+s.count
-            #print "date=%s, count=%d, cumulative_count=%d, prev_count=%d" % (s.date_time.strftime("%Y-%m-%d"), s.count, s.cumulative_count, prev_count)
-            s.save()
-            prev_count = int(s.cumulative_count)
-    
-    def calculate(self, start_datetime, end_datetime):
+                latest_stat = stat
+
+                # update the dates/times
+                start_datetime = end_datetime
+                if frequency == settings.STATISTIC_FREQUENCY_DAILY:
+                    end_datetime += timedelta(days=1)
+                elif frequency == settings.STATISTIC_FREQUENCY_WEEKLY:
+                    end_datetime += timedelta(days=7)
+                elif frequency == settings.STATISTIC_FREQUENCY_MONTHLY:
+                    end_datetime = datetime.strptime((start_datetime+timedelta(days=33)).strftime("%Y %m 1"), "%Y %m %d")
+
+
+
+    @classmethod
+    def get_count(cls, start_datetime, end_datetime):
         """
         Must calculate the number of statistics between the two
         specified date/times. These date/times are passed from the
@@ -167,14 +127,61 @@ class Statistic(models.Model):
         Results must be returned for date >= start_datetime and
         date < end_datetime.
         """
-        raise NotImplementedError("%s has to implement 'calculate' method" % self)
+        raise NotImplementedError("%s has to implement 'get_count' method" % cls.__name__)
 
-    def get_earliest_timestamp(self):
+
+
+    @classmethod
+    def get_start_datetime(cls):
         """
         Must return a date/time object indicating when the earliest
         data available for this metric occurred.
         """
-        # XXX: This should not have to happen in the metric themselves.
-        raise NotImplementedError("Calc all stats from epoch or from some setting value and assume first to have a value's timestamp is the earliest.")
+        return settings.STATISTIC_DEFAULT_START_DATETIME
+
+
+
+    @classmethod
+    def latest(cls, frequency=settings.STATISTIC_FREQUENCY_DAILY):
+        """
+        Returns the latest instance of this statistic.
+        """
+        try:
+            return cls.objects.filter(frequency=frequency).order_by('-date_time')[0]
+        except IndexError:
+            return None
+
+
+
+    @classmethod
+    def earliest(cls, frequency=settings.STATISTIC_FREQUENCY_DAILY):
+        """
+        Returns the earliest instance of this statistic.
+        """
+        try:
+            return cls.objects.filter(frequency=frequency).order_by('date_time')[0]
+        except IndexError:
+            return None
+
+
+
+    @classmethod
+    def latest_count(cls, frequency=settings.STATISTIC_FREQUENCY_DAILY, cumulative=True, count=False):
+        """
+        Returns the latest count for the given frequency.
+        """
+        latest_stat = cls.latest(frequency=frequency)
+        if latest_stat:
+            if count and cumulative:
+                return (latest_stat.count, latest_stat.cumulative_count)
+            elif count:
+                return latest_stat.count
+            else:
+                return latest_stat.cumulative_count
+        else:
+            if count and cumulative:
+                return (0, 0)
+            else:
+                return 0
 
 
