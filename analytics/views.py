@@ -11,6 +11,6 @@ class AnalyticsDashboardView(AnalyticsView):
         """
         Get the context for this view.
         """
-        context = {'gadgets': gadgets._registry}
+        context = {'gadgets': [value for key, value in gadgets._registry.iteritems()]}
         context.update(kwargs)
         return context
