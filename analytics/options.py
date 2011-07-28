@@ -112,6 +112,9 @@ class Statistic(models.Model):
     count = models.IntegerField(default=0)
     cumulative_count = models.BigIntegerField(default=0)
 
+    class Meta:
+        abstract = True
+
     def __unicode__(self):
         return u'%s at %s' % (self.metric, self.date_time.strftime("%Y-%m-%d %H:%M:%S"))
 
