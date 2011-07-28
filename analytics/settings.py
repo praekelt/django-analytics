@@ -1,11 +1,4 @@
-#
-# Settings for django-analytics.
-#
-# thane@praekelt.com
-#
-
 from django.utils.translation import ugettext as _
-
 
 STATISTIC_FREQUENCY_DAILY   = 'd'
 STATISTIC_FREQUENCY_WEEKLY  = 'w'
@@ -33,7 +26,4 @@ GECKOBOARD_COLOURS = [
 
 CSV_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-# the module for which to search when looking through the
-# installed apps for analytics-related configurations
-ANALYTICS_APP_MODULE = "mod_analytics"
-
+COUNT = 'count'
