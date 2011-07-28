@@ -1,3 +1,5 @@
+from analytics.sites import widgets
+
 class BaseWidget(object):
     def __init__(self, title, metrics, value_type, frequency, samples, width, height):
         self.title = title
@@ -12,6 +14,10 @@ class BarWidget(BaseWidget):
     pass
 
 class NumberWidget(BaseWidget):
+    pass
 
+class Registrations(NumberWidget):
     def render(self):
         return 'foo'
+
+widgets.register(Registrations)
