@@ -7,23 +7,22 @@
 
 from datetime import datetime, timedelta
 from django.utils.translation import ugettext as _
-from analytics.models import Metric, Statistic
+from analytics.options import Statistic
 from analytics.settings import *
 
 
 
-def calculate_metric(metric, frequency):
+def calculate_stat(stat_cls, frequency):
     """
-    Invokes the given metric's calculation routine.
+    Invokes the given stats calculation routine.
     """
-
     start_datetime = None
     end_datetime = None
     latest_datetime = None # the date/time for the latest relevant entry
 
     # first work out the period for which we need to calculate
     # the metric's statistics
-    latest_stat = metric.latest_stat(frequency=frequency)
+    latest_stat = stat_cls.latest_stat(frequency=frequency)
 
     # get the metric's class
     mod_parts = metric.metric_class.split('.')
@@ -115,9 +114,12 @@ def calculate_all_metrics(frequencies):
     """
     Calculates all metrics for all frequencies.
     """
+    from django.db.models import get_models
+    import inspect
 
-    for metric in Metric.objects.filter(active=True):
-        for frequency in frequencies:
-            print _("Calculating %(freq)s statistics for %(metric)s...") % {'freq': STATISTIC_FREQUENCY_DICT[frequency].lower(), 'metric': metric.title}
-            calculate_metric(metric, frequency)
+    for model in get_models():
+        if Statistic in inspect.getmro(model):
+            for frequency in frequencies:
+                print _("Calculating %(freq)s statistics for %(model)s...") % {'freq': STATISTIC_FREQUENCY_DICT[frequency].lower(), 'model': model}
+                calculate_stat(model, frequency)
 
