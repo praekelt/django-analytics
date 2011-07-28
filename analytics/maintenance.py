@@ -6,9 +6,6 @@
 
 from inspect import ismethod, isclass
 from django.conf import settings
-from analytics.models import Metric
-from analytics.settings import ANALYTICS_APP_MODULE
-from analytics.basemetric import BaseMetric
 from django.utils.translation import ugettext as _
 
 

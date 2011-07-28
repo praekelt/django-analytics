@@ -2,3 +2,5 @@
 *.swp
 *.egg-info/
 
+Django-1.3-py2.7.egg/ django_geckoboard-1.2.0-py2.7.egg/
+*.egg/
