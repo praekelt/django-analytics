@@ -1,17 +1,8 @@
-#
-# CSV view for django-analytics.
-#
-# thane@praekelt.com
-#
-
 import csv
 import datetime
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse
-from analytics.models import Metric
 from analytics import settings
-
-
 
 def csv_dump(request, uid):
     """
