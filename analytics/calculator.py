@@ -20,8 +20,7 @@ def calculate_stat(stat_cls, frequency):
     end_datetime = None
     latest_datetime = None # the date/time for the latest relevant entry
 
-    # first work out the period for which we need to calculate
-    # the metric's statistics
+    # First work out the period for which we need to calculate the statistics.
     latest_stat = stat_cls.latest_stat(frequency=frequency)
 
     # get the metric's class
