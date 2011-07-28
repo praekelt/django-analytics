@@ -6,7 +6,6 @@
 
 from datetime import datetime, timedelta
 from django_geckoboard.decorators import number_widget, rag_widget, pie_chart, line_chart, geck_o_meter, funnel
-from analytics.models import Metric
 from analytics import settings
 from django.utils.translation import ugettext as _
 
