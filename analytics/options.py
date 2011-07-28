@@ -116,7 +116,7 @@ class Statistic(models.Model):
         abstract = True
 
     def __unicode__(self):
-        return u'%s at %s' % (self.metric, self.date_time.strftime("%Y-%m-%d %H:%M:%S"))
+        return self.__class__.__name__
 
     def update_count(self, count=None):
         """
