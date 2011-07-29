@@ -10,37 +10,41 @@ from analytics.sites import gadgets
 class BaseGadget(object):
     def __init__(self, title, stats, value_type, frequency, samples, width, height):
         self.title = title
-        self.stats = stats
+        # make sure we have a list of statistics
+        self.stats = list(stats) if getattr(stats, '__iter__', False) else [stats]
         self.value_type = value_type
         self.frequency = frequency
         self.samples = samples
         self.width = width
         self.height = height
     
-    def render(self):
+    def render(self, template):
         context = {
             'object': self,
         }
-        return render_to_string('analytics/gadgets/line.html', context)
+        return render_to_string(template, context)
 
     def __str__(self):
         if hasattr(self, '__unicode__'):
             return force_unicode(self).encode('utf-8')
-        if hasattr(self, 'label'):
-            return self.label
+        if hasattr(self, 'title'):
+            return self.title
         return '%s' % self.__class__.__name__
 
 class BarGadget(BaseGadget):
-    pass
+    def render(self):
+        super(BarGadget, self).render('analytics/gadgets/bar.html')
 
 class LineGadget(BaseGadget):
-    pass
+    def render(self):
+        super(LineGadget, self).render('analytics/gadgets/line.html')
 
 class NumberGadget(BaseGadget):
-    pass
+    def render(self):
+        super(LineGadget, self).render('analytics/gadgets/number.html')
 
 class Registrations(LineGadget):
-    label = 'Registrations'
+    pass
 
 
 gadgets.register(Registrations('Registrations', [models.Registrations, models.Registrations], settings.COUNT, 'd', 30, 4, 1))
