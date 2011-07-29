@@ -37,7 +37,8 @@ class Statistic(models.Model):
 
 
     def __unicode__(self):
-        return self.__class__.__name__
+        return u'%s' % self.__class__.get_label()
+
 
     @classmethod
     def get_label(cls):
@@ -54,7 +55,7 @@ class Statistic(models.Model):
         """
 
         if verbose:
-            print _("Calculating statistics for %(class)s...") % {'class': cls.__name__}
+            print _("Calculating statistics for %(class)s...") % {'class': cls.get_label()}
 
         start_datetime = None
         end_datetime = None
