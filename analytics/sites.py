@@ -1,3 +1,5 @@
+from random import randint
+
 class AlreadyRegistered(Exception):
     pass
 
@@ -7,7 +9,16 @@ class Gadgets(object):
     Gadgets are registered with the Gadgets using the register() method.
     """
     def __init__(self):
-        self._registry = [] # gadget object.
+        self._registry = {} # gadget id -> gadget object.
+
+    def gen_id(self):
+        id = randint(1000000, 9000000)
+        while id in self._registry.keys():
+            id = randint(1000000, 9000000)
+        return id
+
+    def get_gadget(self, id):
+        return self._registry[id]
 
     def register(self, gadget):
         """
@@ -17,6 +28,8 @@ class Gadgets(object):
         if gadget in self._registry:
             raise AlreadyRegistered
         else:
-            self._registry.append(gadget)
+            id = self.gen_id()
+            gadget.id = id
+            self._registry[id] = gadget
     
 gadgets = Gadgets()

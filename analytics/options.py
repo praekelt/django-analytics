@@ -36,6 +36,8 @@ class Statistic(models.Model):
     )
 
 
+    def __unicode__(self):
+        return self.__class__.__name__
 
     @classmethod
     def get_label(cls):

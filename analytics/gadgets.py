@@ -1,11 +1,16 @@
+from random import randint
+
+from django.template.loader import render_to_string
+from django.utils.encoding import force_unicode
+
 from analytics import settings
 from analytics import models
 from analytics.sites import gadgets
 
-class BaseWidget(object):
-    def __init__(self, title, metrics, value_type, frequency, samples, width, height):
+class BaseGadget(object):
+    def __init__(self, title, stats, value_type, frequency, samples, width, height):
         self.title = title
-        self.metrics = metrics
+        self.stats = stats
         self.value_type = value_type
         self.frequency = frequency
         self.samples = samples
@@ -13,15 +18,29 @@ class BaseWidget(object):
         self.height = height
     
     def render(self):
-        return 'foo'
+        context = {
+            'object': self,
+        }
+        return render_to_string('analytics/gadgets/line.html', context)
 
-class BarWidget(BaseWidget):
+    def __str__(self):
+        if hasattr(self, '__unicode__'):
+            return force_unicode(self).encode('utf-8')
+        if hasattr(self, 'label'):
+            return self.label
+        return '%s' % self.__class__.__name__
+
+class BarGadget(BaseGadget):
     pass
 
-class NumberWidget(BaseWidget):
+class LineGadget(BaseGadget):
     pass
 
-class Registrations(NumberWidget):
+class NumberGadget(BaseGadget):
     pass
 
-gadgets.register(Registrations('Registrations', [models.Registrations,], settings.COUNT, 'd', 30, 4, 1))
+class Registrations(LineGadget):
+    label = 'Registrations'
+
+
+gadgets.register(Registrations('Registrations', [models.Registrations, models.Registrations], settings.COUNT, 'd', 30, 4, 1))
