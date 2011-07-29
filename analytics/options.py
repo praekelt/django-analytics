@@ -49,6 +49,14 @@ class Statistic(models.Model):
 
 
     @classmethod
+    def is_cumulative(cls):
+        """
+        Is this statistic to be calculated cumulatively?
+        """
+        return getattr(cls, 'get_cumulative', None) is not None
+
+
+    @classmethod
     def calculate(cls, frequency=settings.STATISTIC_FREQUENCY_DAILY, verbose=settings.STATISTIC_CALCULATION_VERBOSE):
         """
         Runs the calculator for this type of statistic.
@@ -63,14 +71,11 @@ class Statistic(models.Model):
         # get the latest statistic
         latest_stat = cls.get_latest(frequency)
 
-        # if there's a cumulative function defined
-        cumulative_calc = getattr(cls, 'get_cumulative', None) is not None
-
         # work out today's date, truncated to midnight
         today = datetime.strptime(datetime.now().strftime("%Y %m %d"), "%Y %m %d") 
 
         # if this statistic only has cumulative stats available
-        if cumulative_calc:
+        if cls.is_cumulative():
             if frequency == settings.STATISTIC_FREQUENCY_DAILY:
                 start_datetime = today
             elif frequency == settings.STATISTIC_FREQUENCY_WEEKLY:

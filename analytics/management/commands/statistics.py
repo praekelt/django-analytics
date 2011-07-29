@@ -1,24 +1,12 @@
 #
 # Central management command for django-analytics.
 #
-# thane@praekelt.com
-#
 
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
-from analytics.calculator import *
-from analytics.maintenance import *
+from analytics import maintenance
 from analytics import settings
-from analytics.sites import gadgets
-
-
-def list_gadgets():
-    """
-    Prints all of the available gadgets and their corresponding statistics.
-    """
-    for gadget in gadgets.get_gadgets():
-        print u"%s\t\t-\t%s" % (gadget, ', '.join(gadget.stats))
 
 
 
@@ -48,19 +36,18 @@ class Command(BaseCommand):
             default=None,
             help=_("Reset the specified statistic. Use --reset=ALL to reset all statistics."),
         ),
-        make_option('--drop-metric',
-            action='store',
-            dest='drop_metric',
-            type='string',
-            default=None,
-            help=_("Drops the specified metric from the database. Use --drop-metric=ALL to drop all metrics."),
+        make_option('--reset-cumulative',
+            action='store_true',
+            dest='reset_cumulative',
+            default=False,
+            help=_("Should the cumulative statistics also be reset (if --reset is used)? Default: False"),
         ),
         make_option('-f', '--frequency',
             action='store',
             dest='frequency',
             type='choice',
             default='a',
-            choices=['d', 'w', 'm', 'a'],
+            choices=settings.STATISTIC_FREQUENCY_ALL+['a'],
             help=_("Set the frequency for the current calculation. d=daily, w=weekly, m=monthly, a=all."),
         ),
     )
@@ -73,20 +60,15 @@ class Command(BaseCommand):
         """
 
         frequency = kwargs['frequency']
-        frequencies = ['d', 'w', 'm'] if frequency == 'a' else [frequency]
+        frequencies = settings.STATISTIC_FREQUENCY_ALL if frequency == 'a' else [frequency]
 
         if kwargs['list']:
-            list_gadgets()
+            maintenance.list_gadgets()
 
         # if we're supposed to calculate the latest statistics
-        '''
         elif kwargs['calculate']:
-            if kwargs['calculate'] == 'ALL':
-                calculate_all_metrics(frequencies)
-            else:
-                calculate_metric_by_uid(kwargs['calculate'], frequencies)
+            maintenance.calculate_statistics(frequencies)
 
         elif kwargs['reset']:
-            reset_metric(kwargs['reset'], frequencies)
-        '''
+            maintenance.reset_statistics(maintenance.get_statistic_by_name(kwargs['reset']), frequencies, kwargs['reset_cumulative'])
 
