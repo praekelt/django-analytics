@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import re
 
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -37,6 +38,14 @@ class Statistic(models.Model):
 
 
     @classmethod
+    def get_label(cls):
+        """
+        Returns a label for this class.
+        """
+        return ' '.join(re.findall(r'[A-Z][^A-Z]*', cls.__name__)).capitalize()
+
+
+    @classmethod
     def calculate(cls, frequency=settings.STATISTIC_FREQUENCY_DAILY, verbose=settings.STATISTIC_CALCULATION_VERBOSE):
         """
         Runs the calculator for this type of statistic.
@@ -49,7 +58,7 @@ class Statistic(models.Model):
         end_datetime = None
 
         # get the latest statistic
-        latest_stat = cls.latest(frequency)
+        latest_stat = cls.get_latest(frequency)
 
         # if there's a cumulative function defined
         cumulative_calc = getattr(cls, 'get_cumulative', None) is not None
@@ -140,7 +149,7 @@ class Statistic(models.Model):
 
 
     @classmethod
-    def latest(cls, frequency=settings.STATISTIC_FREQUENCY_DAILY):
+    def get_latest(cls, frequency=settings.STATISTIC_FREQUENCY_DAILY):
         """
         Returns the latest instance of this statistic.
         """
@@ -152,7 +161,7 @@ class Statistic(models.Model):
 
 
     @classmethod
-    def earliest(cls, frequency=settings.STATISTIC_FREQUENCY_DAILY):
+    def get_earliest(cls, frequency=settings.STATISTIC_FREQUENCY_DAILY):
         """
         Returns the earliest instance of this statistic.
         """
