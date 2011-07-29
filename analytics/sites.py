@@ -20,6 +20,9 @@ class Gadgets(object):
     def get_gadget(self, id):
         return self._registry[id]
 
+    def get_gadgets(self):
+        return self._registry.values()
+
     def register(self, gadget):
         """
         Registers a gadget object.
