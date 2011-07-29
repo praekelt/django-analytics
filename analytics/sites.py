@@ -23,6 +23,17 @@ class Gadgets(object):
     def get_gadgets(self):
         return self._registry.values()
 
+    def get_active_stats(self):
+        """
+        Returns all of the active statistics for the gadgets currently registered.
+        """
+        stats = []
+        for gadget in self._registry.values():
+            for s in gadget.stats:
+                if s not in stats:
+                    stats.append(s)
+        return stats
+
     def register(self, gadget):
         """
         Registers a gadget object.

@@ -23,21 +23,6 @@ def list_gadgets():
 
 
 
-def get_active_stats():
-    """
-    Returns all of the active statistics for the registered gadgets.
-    """
-
-    stats = []
-    for gadget in gadgets.get_gadgets():
-        for s in gadget.stats:
-            if s not in stats:
-                stats.append(s)
-
-    return stats
-
-
-
 def ensure_list(v):
     """
     Makes sure that the given value is a list.
@@ -52,7 +37,7 @@ def get_statistic_by_name(stat_name):
     in the gadgets' registered statistics to find the specified one.
     """
 
-    stats = get_active_stats()
+    stats = gadgets.get_active_stats()
     for s in stats:
         if s.__name__ == stat_name:
             return s
@@ -66,7 +51,7 @@ def calculate_statistics(frequency):
     Calculates all of the metrics associated with the registered gadgets.
     """
 
-    stats = get_active_stats()
+    stats = gadgets.get_active_stats()
 
     # convert the frequency to a list if it isn't already
     frequency = ensure_list(frequency)
@@ -84,7 +69,7 @@ def reset_statistics(stat, frequencies, reset_cumulative):
     frequency/ies.
     """
 
-    stats = get_active_stats() if stat == 'ALL' else ensure_list(stat)
+    stats = gadgets.get_active_stats() if stat == 'ALL' else ensure_list(stat)
     frequencies = ensure_list(frequencies)
 
     for s in stats:
