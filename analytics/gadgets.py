@@ -17,6 +17,7 @@ class BaseGadget(object):
         self.samples = samples
         self.width = width
         self.height = height
+        self.id = None
     
     def render(self, template):
         context = {

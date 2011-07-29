@@ -1,4 +1,6 @@
 from random import randint
+from analytics import maintenance
+from analytics.gadgets import BaseGadget
 
 class AlreadyRegistered(Exception):
     pass
@@ -45,5 +47,19 @@ class Gadgets(object):
             id = self.gen_id()
             gadget.id = id
             self._registry[id] = gadget
+
+    def unregister(self, gadgets):
+        """
+        Unregisters the specified gadget(s) if it/they has/have already been registered.
+        "gadgets" can be a single class or a tuple/list of classes to unregister.
+        """
+        gadgets = maintenance.ensure_list(gadgets)
+        for gadget in gadgets:
+            if isinstance(gadget, BaseGadget) and gadget.id in self._registry:
+                del self._registry[gadget.id]
+            elif isinstance(gadget, int) and gadget in self._registry:
+                del self._registry[gadget]
     
+
 gadgets = Gadgets()
+
