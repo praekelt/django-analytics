@@ -54,13 +54,14 @@ def get_statistic_models():
     return stats
         
 
-def calculate_statistics(frequency):
+def calculate_statistics(stat frequency):
     """
     Calculates all of the metrics associated with the registered gadgets.
     """
+    stats = ensure_list(stat)
     frequency = ensure_list(frequency)
 
-    for stat in get_statistic_models():
+    for stat in stats:
         for f in frequency:
             print "Calculating %s (%s)..." % (stat, settings.STATISTIC_FREQUENCY_DICT[f])
             stat.calculate(f)
