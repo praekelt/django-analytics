@@ -32,6 +32,9 @@ def get_statistic_by_name(stat_name):
     in the gadgets' registered statistics to find the specified one.
     """
 
+    if stat_name == 'ALL':
+        return get_statistic_models()
+
     for stat in get_statistic_models():
         if stat.__name__ == stat_name:
             return stat
@@ -62,13 +65,14 @@ def calculate_statistics(frequency):
             print "Calculating %s (%s)..." % (stat, settings.STATISTIC_FREQUENCY_DICT[f])
             stat.calculate(f)
 
+
 def reset_statistics(stat, frequencies, reset_cumulative):
     """
     Resets the specified statistic's data (deletes it) for the given
     frequency/ies.
     """
 
-    stats = gadgets.get_active_stats() if stat == 'ALL' else ensure_list(stat)
+    stats = ensure_list(stat)
     frequencies = ensure_list(frequencies)
 
     for s in stats:

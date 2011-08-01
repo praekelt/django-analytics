@@ -67,7 +67,7 @@ class Command(BaseCommand):
 
         # if we're supposed to calculate the latest statistics
         elif kwargs['calculate']:
-            maintenance.calculate_statistics(frequencies)
+            maintenance.calculate_statistics(maintenance.get_statistic_by_name(kwargs['calculate']), frequencies)
 
         elif kwargs['reset']:
             maintenance.reset_statistics(maintenance.get_statistic_by_name(kwargs['reset']), frequencies, kwargs['reset_cumulative'])
