@@ -54,7 +54,7 @@ def get_statistic_models():
     return stats
         
 
-def calculate_statistics(stat frequency):
+def calculate_statistics(stat, frequency):
     """
     Calculates all of the metrics associated with the registered gadgets.
     """

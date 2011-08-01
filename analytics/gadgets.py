@@ -25,8 +25,9 @@ class BaseGadget(object):
 
         data = []
         for stat in self.stats:
-            latest = stat.get_latest()
-            data.append((time.mktime(latest.date_time.timetuple()), getattr(stat.get_latest(), self.display_type)))
+            latest = stat.get_latest(frequency=self.frequency)
+            #data.append((time.mktime(latest.date_time.timetuple()), getattr(stat.get_latest(), self.display_type)))
+            data.append((time.mktime(datetime.now().timetuple()) * 1000, randint(0, 10000)))
 
         return data
         return [(time.mktime(datetime.now().timetuple()) * 1000, randint(0, 10000)), (time.mktime(datetime.now().timetuple()) * 1000, randint(0, 10000))]
@@ -61,4 +62,4 @@ class NumberGadget(BaseGadget):
 class Registrations(LineGadget):
     pass
 
-dashboard.register(Registrations('Registrations', [models.Registrations, models.Registrations], settings.COUNT_DISPLAY_TYPE, 'd', 30, 4, 1))
+dashboard.register(Registrations('Daily Registrations', [models.Registrations, models.Registrations], settings.COUNT_DISPLAY_TYPE, settings.STATISTIC_FREQUENCY_DAILY, 30, 4, 1))
