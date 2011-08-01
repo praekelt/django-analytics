@@ -61,7 +61,6 @@ class Statistic(models.Model):
         """
         Runs the calculator for this type of statistic.
         """
-
         if verbose:
             print _("Calculating statistics for %(class)s...") % {'class': cls.get_label()}
 
@@ -105,7 +104,7 @@ class Statistic(models.Model):
                 end_datetime = datetime.strptime((start_datetime+timedelta(days=33)).strftime("%Y %m 1"), "%Y %m %d")
 
             # if we're doing the normal count
-            while start_datetime < today:
+            while start_datetime <= today:
                 count = cls.get_count(start_datetime, end_datetime)
                 cumulative_count = 0
                 if isinstance(count, tuple):
@@ -117,6 +116,7 @@ class Statistic(models.Model):
                 stat, created = cls.objects.get_or_create(date_time=start_datetime, frequency=frequency)
                 stat.count = count
                 stat.cumulative_count = cumulative_count
+                stat.save()
 
                 latest_stat = stat
 

@@ -1,27 +1,41 @@
-from random import randint
-
 from django.template.loader import render_to_string
 from django.utils.encoding import force_unicode
 
 from analytics import settings
 from analytics import models
+from analytics.views import dashboard
 from analytics.sites import gadgets
 
 class BaseGadget(object):
-    def __init__(self, title, stats, value_type, frequency, samples, width, height):
+    def __init__(self, title, stats, display_type, frequency, samples, width, height):
         self.title = title
         # make sure we have a list of statistics
         self.stats = list(stats) if getattr(stats, '__iter__', False) else [stats]
-        self.value_type = value_type
+        self.display_type = display_type
         self.frequency = frequency
         self.samples = samples
         self.width = width
         self.height = height
         self.id = None
+
+    def get_data(self):
+        from datetime import datetime
+        from random import randint
+        import time
+
+        data = []
+        for stat in self.stats:
+            latest = stat.get_latest()
+            data.append((time.mktime(latest.date_time.timetuple()), getattr(stat.get_latest(), self.display_type)))
+
+        return data
+        return [(time.mktime(datetime.now().timetuple()) * 1000, randint(0, 10000)), (time.mktime(datetime.now().timetuple()) * 1000, randint(0, 10000))]
     
     def render(self, template):
+        gadgets.register(self)
         context = {
             'object': self,
+            'hash': self.__hash__(),
         }
         return render_to_string(template, context)
 
@@ -38,7 +52,7 @@ class BarGadget(BaseGadget):
 
 class LineGadget(BaseGadget):
     def render(self):
-        super(LineGadget, self).render('analytics/gadgets/line.html')
+        return super(LineGadget, self).render('analytics/gadgets/line.html')
 
 class NumberGadget(BaseGadget):
     def render(self):
@@ -47,5 +61,4 @@ class NumberGadget(BaseGadget):
 class Registrations(LineGadget):
     pass
 
-
-gadgets.register(Registrations('Registrations', [models.Registrations, models.Registrations], settings.COUNT, 'd', 30, 4, 1))
+dashboard.register(Registrations('Registrations', [models.Registrations, models.Registrations], settings.COUNT_DISPLAY_TYPE, 'd', 30, 4, 1))

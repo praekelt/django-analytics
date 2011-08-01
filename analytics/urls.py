@@ -11,11 +11,11 @@ urlpatterns = patterns('',
     (r'^geckoboard/funnel', 'analytics.geckoboard_views.geckoboard_funnel'),
    
     # Highcharts related views.
-    url(r'^highcharts/(?P<id>\d+)/$', 'analytics.highcharts_views.data', name='highcharts_data'),
+    url(r'^highcharts/(?P<hash>\d+)/$', 'analytics.highcharts_views.data', name='highcharts_data'),
         
     # CSV related views.
     (r'^csv/(?P<uid>[a-zA-Z0-9\_]+)', 'analytics.csv_views.csv_dump'),
 
     # Default analytics dashboard.
-    url(r'^$', views.AnalyticsDashboardView.as_view(), name='analytics_dashboard_view'),
+    url(r'^$', views.dashboard.dispatch, name='analytics_dashboard_view'),
 )

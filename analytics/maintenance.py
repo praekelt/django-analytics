@@ -1,12 +1,7 @@
-#
-# django-analytics maintenance-related functions.
-#
-
 from django.utils.translation import ugettext as _
 
 from analytics import settings
-from analytics.sites import gadgets
-
+from analytics.options import Statistic
 
 
 def list_gadgets():
@@ -37,31 +32,35 @@ def get_statistic_by_name(stat_name):
     in the gadgets' registered statistics to find the specified one.
     """
 
-    stats = gadgets.get_active_stats()
-    for s in stats:
-        if s.__name__ == stat_name:
-            return s
+    for stat in get_statistic_models():
+        if stat.__name__ == stat_name:
+            return stat
 
     raise Exception, _("%(stat)s cannot be found.") % {'stat': stat_name}
 
 
+def get_statistic_models():
+    from django.db.models import get_models
+    import inspect
+    
+    stats = []
+    for model in get_models():
+        if Statistic in inspect.getmro(model):
+            stats.append(model)
+
+    return stats
+        
 
 def calculate_statistics(frequency):
     """
     Calculates all of the metrics associated with the registered gadgets.
     """
-
-    stats = gadgets.get_active_stats()
-
-    # convert the frequency to a list if it isn't already
     frequency = ensure_list(frequency)
 
-    for s in stats:
+    for stat in get_statistic_models():
         for f in frequency:
-            print "Calculating %s (%s)..." % (s, settings.STATISTIC_FREQUENCY_DICT[f])
-            s.calculate(f)
-
-
+            print "Calculating %s (%s)..." % (stat, settings.STATISTIC_FREQUENCY_DICT[f])
+            stat.calculate(f)
 
 def reset_statistics(stat, frequencies, reset_cumulative):
     """
