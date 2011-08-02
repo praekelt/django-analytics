@@ -72,10 +72,14 @@ class Statistic(models.Model):
 
         # work out today's date, truncated to midnight
         today = datetime.strptime(datetime.now().strftime("%Y %m %d"), "%Y %m %d") 
+        now = datetime.now()
 
         # if this statistic only has cumulative stats available
         if cls.is_cumulative():
-            if frequency == settings.STATISTIC_FREQUENCY_DAILY:
+            if frequency == settings.STATISTIC_FREQUENCY_HOURLY:
+                # truncate to the nearest hour
+                start_datetime = datetime.strptime(now.strftime("%Y %m %d %H:00:00"), "%Y %m %d %H:%M:%S")
+            elif frequency == settings.STATISTIC_FREQUENCY_DAILY:
                 start_datetime = today
             elif frequency == settings.STATISTIC_FREQUENCY_WEEKLY:
                 # truncate today to the start of this week
@@ -91,7 +95,10 @@ class Statistic(models.Model):
             # get the date/time at which we should start calculating
             start_datetime = cls.get_start_datetime() if latest_stat is None else latest_stat.date_time
             # truncate the start date/time to the appropriate frequency
-            if frequency == settings.STATISTIC_FREQUENCY_DAILY:
+            if frequency == settings.STATISTIC_FREQUENCY_HOURLY:
+                start_datetime = datetime.strptime(start_datetime.strftime("%Y %m %d %H:00:00"), "%Y %m %d %H:%M:%S")
+                end_datetime = start_datetime+timedelta(hours=1)
+            elif frequency == settings.STATISTIC_FREQUENCY_DAILY:
                 start_datetime = datetime.strptime(start_datetime.strftime("%Y %m %d"), "%Y %m %d")
                 end_datetime = start_datetime+timedelta(days=1)
             elif frequency == settings.STATISTIC_FREQUENCY_WEEKLY:
@@ -104,7 +111,7 @@ class Statistic(models.Model):
                 end_datetime = datetime.strptime((start_datetime+timedelta(days=33)).strftime("%Y %m 1"), "%Y %m %d")
 
             # if we're doing the normal count
-            while start_datetime <= today:
+            while start_datetime < now:
                 count = cls.get_count(start_datetime, end_datetime)
                 cumulative_count = 0
                 if isinstance(count, tuple):
@@ -120,9 +127,11 @@ class Statistic(models.Model):
 
                 latest_stat = stat
 
-                # update the dates/times
+                # update the dates/time window
                 start_datetime = end_datetime
-                if frequency == settings.STATISTIC_FREQUENCY_DAILY:
+                if frequency == settings.STATISTIC_FREQUENCY_HOURLY:
+                    end_datetime += timedelta(hours=1)
+                elif frequency == settings.STATISTIC_FREQUENCY_DAILY:
                     end_datetime += timedelta(days=1)
                 elif frequency == settings.STATISTIC_FREQUENCY_WEEKLY:
                     end_datetime += timedelta(days=7)

@@ -4,17 +4,12 @@ from analytics import settings
 from analytics.options import Statistic
 
 
-def list_gadgets():
+def list_statistics():
     """
-    Prints all of the available gadgets and their corresponding statistics.
+    Prints all of the available statistics.
     """
-    print ""
-    print "Gadget\t\t\tStatistics"
-    print "------\t\t\t----------"
-    for gadget in gadgets.get_gadgets():
-        print u"%s\t\t%s" % (gadget, ', '.join([u'%s' % s.get_label() for s in gadget.stats]))
-
-    print ""
+    for s in get_statistic_models():
+        print s.__name__, "(%s)" % s
 
 
 
@@ -54,20 +49,20 @@ def get_statistic_models():
     return stats
         
 
-def calculate_statistics(stat, frequency):
+def calculate_statistics(stat, frequencies):
     """
     Calculates all of the metrics associated with the registered gadgets.
     """
     stats = ensure_list(stat)
-    frequency = ensure_list(frequency)
+    frequencies = ensure_list(frequencies)
 
     for stat in stats:
-        for f in frequency:
-            print "Calculating %s (%s)..." % (stat, settings.STATISTIC_FREQUENCY_DICT[f])
+        for f in frequencies:
+            print "Calculating %s (%s)..." % (stat.__name__, settings.STATISTIC_FREQUENCY_DICT[f])
             stat.calculate(f)
 
 
-def reset_statistics(stat, frequencies, reset_cumulative):
+def reset_statistics(stat, frequencies, reset_cumulative, recalculate=False):
     """
     Resets the specified statistic's data (deletes it) for the given
     frequency/ies.
@@ -79,9 +74,13 @@ def reset_statistics(stat, frequencies, reset_cumulative):
     for s in stats:
         for f in frequencies:
             if not s.is_cumulative() or reset_cumulative:
-                print "Resetting %s (%s)..." % (s, settings.STATISTIC_FREQUENCY_DICT[f])
+                print "Resetting %s (%s)..." % (s.__name__, settings.STATISTIC_FREQUENCY_DICT[f])
                 s.objects.filter(frequency=f).delete()
             elif s.is_cumulative() and not reset_cumulative:
-                print "Skipping %s because it is cumulative." % s
+                print "Skipping %s because it is cumulative." % s.__name__
+
+    if recalculate:
+        print "Recalculating statistics..."
+        calculate_statistics(stats, frequencies)
 
 
