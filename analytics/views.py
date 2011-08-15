@@ -7,6 +7,9 @@ class AlreadyRegistered(Exception):
 
 
 class AnalyticsView(TemplateView):
+    columns = 4
+    rows = 2
+
     def get_template_names(self):
         return 'analytics/dashboard.html'
 
@@ -46,16 +49,36 @@ class AnalyticsView(TemplateView):
         for gadget in gadgets:
             while gadget in self._registry:
                 self._registry.remove(gadget)
-
-
-class AnalyticsDashboardView(AnalyticsView):
+    
+    def get_max_dimension(self):
+        columns = 0
+        rows = 0
+        for gadget in self._registry:
+            if gadget.columns > columns:
+                columns = gadget.columns
+            if gadget.rows > rows:
+                rows = gadget.rows
+    
+        return columns, rows
+    
     def get_context_data(self, **kwargs):
         """
         Get the context for this view.
         """
-        context = {'gadgets': self._registry}
+        #max_columns, max_rows = self.get_max_dimension()
+        context = {
+            'gadgets': self._registry,
+            'columns': self.columns,
+            'rows': self.rows,
+            'column_ratio': 100 - self.columns * 2,
+            'row_ratio': 100 - self.rows * 2,
+        }
         context.update(kwargs)
         return context
+
+
+class AnalyticsDashboardView(AnalyticsView):
+    pass
 
 
 dashboard = AnalyticsDashboardView()
