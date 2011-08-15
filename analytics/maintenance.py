@@ -73,10 +73,10 @@ def reset_statistics(stat, frequencies, reset_cumulative, recalculate=False):
 
     for s in stats:
         for f in frequencies:
-            if not s.is_cumulative() or reset_cumulative:
+            if not s.cumulative or reset_cumulative:
                 print "Resetting %s (%s)..." % (s.__name__, settings.STATISTIC_FREQUENCY_DICT[f])
                 s.objects.filter(frequency=f).delete()
-            elif s.is_cumulative() and not reset_cumulative:
+            elif s.cumulative and not reset_cumulative:
                 print "Skipping %s because it is cumulative." % s.__name__
 
     if recalculate:
