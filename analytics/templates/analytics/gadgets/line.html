@@ -1,21 +1,21 @@
 <script type="text/javascript">
 
 
-    function requestData() {
+    function requestData_{{ hash }}() {
         $.ajax({
             url: '{% url highcharts_data hash %}',
             success: function(point) {
             $.each(point, function(index) {
-                var series = chart.series[index],
+                var series = chart_{{ hash }}.series[index],
                     shift = series.data.length > {{ object.samples }}; // shift if the series is longer required samples
                 
                     // add the point
-                    chart.series[index].addPoint(point[index], false, shift);
+                    chart_{{ hash }}.series[index].addPoint(point[index], false, shift);
             });
                 
                 // call it again after one second
-            setTimeout(requestData, 1000);    
-            chart.redraw()
+            setTimeout(requestData_{{ hash }}, 1000);    
+            chart_{{ hash }}.redraw()
             
             },
             cache: false
@@ -23,12 +23,12 @@
     }
 
     $(document).ready(function() {
-        chart = new Highcharts.Chart({
+            chart_{{ hash }} = new Highcharts.Chart({
             chart: {
                 renderTo: 'gadget{{ hash }}',
                 defaultSeriesType: 'spline',
                 events: {
-                    load: requestData
+                    load: requestData_{{ hash }}
                 }
             },
             title: {
@@ -64,6 +64,6 @@
     });
 </script>
 
-<div id="gadget{{ hash }}" style="width: 100%; height: 400px"></div>
+<div id="gadget{{ hash }}" style="float: left; width: {% widthratio object.columns columns 100 %}%; height: 50%;"></div>
 
 
