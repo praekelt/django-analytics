@@ -17,6 +17,8 @@ class Statistic(models.Model):
     A 'widget' member is required to be provided by inheriting classes, to be used as for rendering the metric.
     """
 
+    cumulative = False
+
     class Meta:
         abstract = True
 
@@ -49,14 +51,6 @@ class Statistic(models.Model):
 
 
     @classmethod
-    def is_cumulative(cls):
-        """
-        Is this statistic to be calculated cumulatively?
-        """
-        return getattr(cls, 'get_cumulative', None) is not None
-
-
-    @classmethod
     def calculate(cls, frequency=settings.STATISTIC_FREQUENCY_DAILY, verbose=settings.STATISTIC_CALCULATION_VERBOSE):
         """
         Runs the calculator for this type of statistic.
@@ -75,7 +69,7 @@ class Statistic(models.Model):
         now = datetime.now()
 
         # if this statistic only has cumulative stats available
-        if cls.is_cumulative():
+        if cls.cumulative:
             if frequency == settings.STATISTIC_FREQUENCY_HOURLY:
                 # truncate to the nearest hour
                 start_datetime = datetime.strptime(now.strftime("%Y %m %d %H:00:00"), "%Y %m %d %H:%M:%S")
@@ -83,7 +77,7 @@ class Statistic(models.Model):
                 start_datetime = today
             elif frequency == settings.STATISTIC_FREQUENCY_WEEKLY:
                 # truncate today to the start of this week
-                start_datetime = datetime.strptime(today.strftime("%Y %W 0"), "%Y %w %w")
+                start_datetime = datetime.strptime(today.strftime("%Y %W 0"), "%Y %W %w")
             elif frequency == settings.STATISTIC_FREQUENCY_MONTHLY:
                 # truncate today to the start of this month
                 start_datetime = datetime.strptime(today.strftime("%Y %m 1"), "%Y %m %d")
@@ -152,8 +146,13 @@ class Statistic(models.Model):
         date < end_datetime.
         """
         raise NotImplementedError("%s has to implement 'get_count' method" % cls.__name__)
-
-
+    
+    @classmethod
+    def get_cumulative(cls):
+        """
+        Must return cumulative count for statistic.
+        """
+        raise NotImplementedError("%s has to implement 'get_cumulative' method" % cls.__name__)
 
     @classmethod
     def get_start_datetime(cls):
